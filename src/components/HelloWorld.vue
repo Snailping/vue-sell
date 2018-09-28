@@ -5,7 +5,7 @@
 </template>
 
 <script>
-  import ApiServer from 'api/api/index'
+  import ApiServer from 'api/index'
 
   export default {
     name: 'HelloWorld',

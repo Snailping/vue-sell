@@ -1,5 +1,6 @@
 <template>
   <div id="app">
+    <v-header :seller="seller"/>
     <div class="tab border-1px">
       <router-link
         class="tab-item"
@@ -28,8 +29,36 @@
 </template>
 
 <script>
+  import ApiServer from './api/index'
+  import Header from './components/header/header'
+
   export default {
     name: 'App',
+    data () {
+      return {
+        seller: {}
+      }
+    },
+    created () {
+      this.getSeller()
+    },
+    methods: {
+      //获取商家基本信息
+      getSeller () {
+        //异步任务 ajax
+        ApiServer.getSeller().then(res => {
+          if (res.status === 1) {
+            console.log(res)
+            this.seller = res.data
+          }
+        }).catch(err => {
+          console.log(err)
+        })
+      },
+    },
+    components: {
+      'v-header': Header
+    }
   }
 </script>
 
