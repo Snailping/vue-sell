@@ -1,6 +1,7 @@
 import request from '../utils/request'
 
 export default class ApiServer {
+  //加class代表这是一个类
   //获取商品基本信息
   static getGoods () {
     let url = `/static/goods.json`

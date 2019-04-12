@@ -12,7 +12,7 @@ export default new Router({
     {
       path: '/',
       redirect: '/goods',
-    },
+     },//设置默认路径
     {
       path: '/goods',
       name: 'goods',
@@ -35,3 +35,4 @@ export default new Router({
     }
   ],
 })
+

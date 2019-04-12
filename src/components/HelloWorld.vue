@@ -30,6 +30,8 @@
           console.log(err)
         })
       },
+
+
       //获取商品基本信息
       getGoods () {
         ApiServer.getGoods().then(res => {
