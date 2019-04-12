@@ -5,7 +5,7 @@
         <h1 class="title">{{seller.name}}</h1>
         <div class="desc border-1px">
           <star :size="36" :score="seller.score"></star>
-          <span class="text">{{seller.ratingCount}}</span>
+          <span class="text">({{seller.ratingCount}})</span>
           <span class="text">月售{{seller.sellCount}}单</span>
         </div>
         <ul class="remark">
@@ -28,6 +28,10 @@
             </div>
           </li>
         </ul>
+        <div class="favorite" @click="toggleFavorite">
+          <span class="icon-favorite" :class="{'active':favorite}"></span>
+          <span class="text">{{favoriteText}}</span>
+        </div>
       </div>
       <split></split>
       <div class="bulletin">
@@ -65,63 +69,79 @@
 </template>
 
 <script type="text/ecmascript-6">
-  import BScroll from 'better-scroll';
-  import ApiServer from '../../api/index';
-  import star from 'components/star/star';
-  import split from 'components/split/split';
+  import BScroll from 'better-scroll'
+  import ApiServer from '../../api/index'
+  import {saveToLocal,loadFormLocal} from '../../utils/store'
+  import star from 'components/star/star'
+  import split from 'components/split/split'
+
   export default {
-    props:{
-      seller:{
-        type:Object
+    props: {
+      seller: {
+        type: Object
       }
     },
     data () {
       return {
+        favorite: (()=>{
+          return loadFormLocal(this.seller.id,'favorite',false);
+        })()
+      }
+    },
+    computed: {
+      favoriteText () {
+        return this.favorite ? '已收藏' : '收藏'
       }
     },
     created () {
-      this.classMap=['decrease','discount','special','invoice','guarantee']
+      this.classMap = ['decrease', 'discount', 'special', 'invoice', 'guarantee']
     },
-    // watch(){
-    //   // 'seller'(){
-    //   //   this._initScroll();
-    //   // }
-    // },
-    mounted(){
-      this._initScroll();
+    watch: {
+      'seller' (newVal, oldval) {
+        // console.log(newVal);
+        // console.log(oldval)
+        this._initScroll()
+      }
     },
-    updated(){
-
+    mounted () {
+      this._initScroll()
     },
     methods: {
-      _initScroll(){
-        if(!this.scroll){console.log(this.$refs.seller)
-          this.scroll=new BScroll(this.$refs.seller,{
-            click:true
-          });
-        };
-        if(this.seller.pics){
-          let picWitch=120;
-          let margin=6;
-          let width=(picWitch+margin)*this.seller.pics.length;
-          this.$refs.piclist.style.width=width+'px';
-          this.$nextTick(()=>{console.log(this.$refs.picwrapper)
-            if(!this.picscroll){
-              this.picscroll=new BScroll(this.$refs.picwrapper,{
-                scrollX:true,
-                eventPassthrough:'vertical'
-              });
-            }else{
-              this.picscroll.refresh();
+      _initScroll () {
+        if (!this.scroll) {
+          this.scroll = new BScroll(this.$refs.seller, {
+            click: true
+          })
+        } else {
+          this.scroll.refresh()
+        }
+
+        if (this.seller.pics) {
+          let picWitch = 120
+          let margin = 6
+          let width = (picWitch + margin) * this.seller.pics.length
+          this.$refs.piclist.style.width = width + 'px'
+          this.$nextTick(() => {
+            if (!this.picscroll) {
+              this.picscroll = new BScroll(this.$refs.picwrapper, {
+                scrollX: true,
+                eventPassthrough: 'vertical'
+              })
+            } else {
+              this.picscroll.refresh()
             }
           })
         }
-
+      },
+      toggleFavorite (event) {
+        if (!event._constructed) {
+          return
+        }
+        this.favorite = !this.favorite;
+        saveToLocal(this.seller.id,'favorite',this.favorite);
       }
-
-
     },
-    components:{
+    components: {
       star,
       split
     }
@@ -130,139 +150,190 @@
 
 <style lang="stylus" rel="stylesheet/stylus">
   @import "../../assets/styles/mixin.styl"
+
   .seller
-    position:absolute
-    top:174px
-    bottom:0
-    left:0
-    width:100%
-    overflow:hidden
+    position: absolute
+    top: 174px
+    bottom: 0
+    left: 0
+    width: 100%
+    overflow: hidden
+
     .overview
-      padding:18px
+      padding: 18px
+
       .title
-        margin-bottom:8px
-        line-height:14px
-        color:rgb(7,17,27)
-        font-size:14px
+        margin-bottom: 8px
+        line-height: 14px
+        color: rgb(7, 17, 27)
+        font-size: 14px
+
       .desc
-        padding-bottom:18px
-        border-1px(rgba(7,17,27,0.1))
-        font-size:0
+        padding-bottom: 18px
+        border-1px(rgba(7, 17, 27, 0.1))
+        font-size: 0
+
         .star
-          display:inline-block
-          margin-right:8px
-          vertical-align :top
+          display: inline-block
+          margin-right: 8px
+          vertical-align: top
+
         .text
-          display:inline-block
-          margin-right:12px
-          line-height:18px
-          vertical-align :top
-          font-size:10px
-          color:rgb(77,85,93)
+          display: inline-block
+          margin-right: 12px
+          line-height: 18px
+          vertical-align: top
+          font-size: 10px
+          color: rgb(77, 85, 93)
+
       .remark
-        display:flex
-        padding-top:18px
+        display: flex
+        padding-top: 18px
+
         .block
-          flex:1
-          text-align:center
-          border-right:1px solid rgba(7,17,27,0.1)
+          flex: 1
+          text-align: center
+          border-right: 1px solid rgba(7, 17, 27, 0.1)
+
           &:last-child
-            border:none
+            border: none
+
           h2
-            margin-bottom:4px
-            line-height:10px
-            font-size:10px
-            color:rgb(147,153,159)
+            margin-bottom: 4px
+            line-height: 10px
+            font-size: 10px
+            color: rgb(147, 153, 159)
+
           .content
-            line-height:24px
-            font-size:10px
-            color:rgb(7,17,27)
+            line-height: 24px
+            font-size: 10px
+            color: rgb(7, 17, 27)
+
             .stress
-              font-size:24px
+              font-size: 24px
+
+      .favorite
+        position: absolute
+        width: 50px
+        right: 11px
+        top: 18px
+        text-align: center
+
+        .icon-favorite
+          display: block
+          ine-height: 24px
+          font-size: 24px
+          color: #d4d6d9
+
+          &.active
+            color: rgb(240, 20, 20)
+
+        .text
+          line-height: 10px
+          font-size: 10px
+          color: rgb(77, 85, 93)
 
     .bulletin
-      padding:18px 18px 0 18px
+      padding: 18px 18px 0 18px
+
       .title
-        margin-bottom:8px
-        line-height:14px
-        color:rgb(7,17,27)
-        font-size:14px
+        margin-bottom: 8px
+        line-height: 14px
+        color: rgb(7, 17, 27)
+        font-size: 14px
+
       .content-wrapper
-        padding:0 12px 16px 12px
-        border-1px(rgba(7,17,27,0.1))
+        padding: 0 12px 16px 12px
+        border-1px(rgba(7, 17, 27, 0.1))
+
         .content
-          line-height:24px
-          font-size:12px
-          color:rgb(240,20,20)
+          line-height: 24px
+          font-size: 12px
+          color: rgb(240, 20, 20)
 
 
       .supports
         .support-item
-          padding:16px 12px
-          border-1px(rgba(7,17,27,0.1))
-          font-size:0
+          padding: 16px 12px
+          border-1px(rgba(7, 17, 27, 0.1))
+          font-size: 0
+
           &:last-child
             border-none()
+
           .icon
-            display:inline-block
-            vertical-align:top
-            width:16px
-            height:16px
-            margin-right:6px
-            background-size:16px 16px
-            background-repeat:no-repeat
+            display: inline-block
+            vertical-align: top
+            width: 16px
+            height: 16px
+            margin-right: 6px
+            background-size: 16px 16px
+            background-repeat: no-repeat
+
             &.decrease
               bg-image('decrease_4')
+
             &.discount
               bg-image('discount_4')
+
             &.guarantee
               bg-image('guarantee_4')
+
             &.invoice
               bg-image('invoice_4')
+
             &.special
               bg-image('special_4')
 
 
           .text
-            line-height:16px
-            font-size:12px
+            line-height: 16px
+            font-size: 12px
 
     .pics
-      padding:18px
+      padding: 18px
+
       .title
-        margin-bottom:12px
-        line-height:14px
-        color:rgb(7,17,27)
-        font-size:14px
+        margin-bottom: 12px
+        line-height: 14px
+        color: rgb(7, 17, 27)
+        font-size: 14px
+
       .pic-wrapper
         width: 100%
-        overflow :hidden
-        white-space:nowrap
+        overflow: hidden
+        white-space: nowrap
+
         .pic-list
-          font-size:0
+          font-size: 0
+
           .pic-item
-            display:inline-block
-            margin-right:6px
-            width:120px
-            height:90px
+            display: inline-block
+            margin-right: 6px
+            width: 120px
+            height: 90px
+
             &:last-child
-              margin:0
+              margin: 0
 
 
     .info
-      padding:18px 18px 0 18px
-      color:rgb(7,17,27)
+      padding: 18px 18px 0 18px
+      color: rgb(7, 17, 27)
+
       .title
-        padding-bottom:12px
-        line-height:14px
-        border-1px(rgba(7,17,27,0.1))
-        color:rgb(7,17,27)
-        font-size:14px
+        padding-bottom: 12px
+        line-height: 14px
+        border-1px(rgba(7, 17, 27, 0.1))
+        color: rgb(7, 17, 27)
+        font-size: 14px
+
       .info-item
-        padding:16px 12px
-        line-height:16px
-        border-1px(rgba(7,17,27,0.1))
-        font-size:12px
+        padding: 16px 12px
+        line-height: 16px
+        border-1px(rgba(7, 17, 27, 0.1))
+        font-size: 12px
+
         &:last-child
           border-none()
 

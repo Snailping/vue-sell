@@ -8,6 +8,7 @@ export default class ApiServer {
     return request({
       url: url,
       method: 'get',
+
     })
   }
 
@@ -21,11 +22,12 @@ export default class ApiServer {
   }
 
   //获取商家基本信息
-  static getSeller () {
+  static getSeller (params) {
     let url = `/static/seller.json`
     return request({
       url: url,
       method: 'get',
+      params
     })
   }
 }

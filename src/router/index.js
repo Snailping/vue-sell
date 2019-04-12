@@ -12,11 +12,15 @@ export default new Router({
     {
       path: '/',
       redirect: '/goods',
+
      },//设置默认路径
     {
       path: '/goods',
       name: 'goods',
       component: goods,
+      meta: {
+        keepAlive: false // 不需要缓存
+      }
     },
     {
       path: '/ratings',
